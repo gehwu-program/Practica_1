@@ -1,0 +1,132 @@
+#include <iostream>
+#include <cstdlib> 
+#include <string>
+#include <windows.h>
+using namespace std;
+#ifdef max
+#undef max
+#endif
+HANDLE hConsoleOutput = ::GetStdHandle(STD_OUTPUT_HANDLE);
+CONSOLE_SCREEN_BUFFER_INFO csb;
+int prompt_menu_item()
+{
+
+    int variant;
+    cout << "Выберите вариант\n" << endl;
+    cout << "1. Просмотреть количество байт у каждого типа переменной\n"
+        << "2. Вывести битовое представление типа int...\n"
+        << "3. Вывести битовое представление типа float...\n"   
+        << "4. Вывести битовое представление типа double...\n"
+        << "5. Выйти\n" << endl;
+    cout << ">>> ";
+    cin >> variant;
+    return variant;
+}
+
+int main(int argc, char* argv[]) {
+    setlocale(0, "");
+    int variant = prompt_menu_item();
+    unsigned int mask = 1 << (sizeof(int) * 8 - 1);
+    unsigned int Nmask = 1 << (sizeof(float) * 8 - 1);
+    unsigned int newMask = 1 << (sizeof(int) * 8 - 1);
+    
+    switch (variant) {
+    case 1:
+        cout << "Проcматриваем содержимое..." << endl;
+        cout << "int: " << sizeof(int) << " байт\n";
+        cout << "short int: " << sizeof(short int) << " байт\n";
+        cout << "long int: " << sizeof(long int) << " байт\n";
+        cout << "float: " << sizeof(float) << " байт\n";
+        cout << "double: " << sizeof(double) << " байт\n";
+        cout << "long double: " << sizeof(long double) << " байт\n";
+        cout << "char : " << sizeof(char) << " байт\n";
+        cout << "bool : " << sizeof(bool) << " байт\n";
+        break;
+    case 2:
+        cout << "" << endl;
+        int n;
+        cout << "Введите число: ";
+        cin >> n;
+        for (int i = 0; i < sizeof(int) * 8; i++, mask >>= 1) {
+            if (n & mask) {
+                cout << '1';
+            }
+            else {
+                cout << '0';
+            }
+            if (i == 0 || i % 8 == 0) {
+                cout << " ";
+            }
+        }
+        cout << "\n";
+        break;
+    case 3:
+        cout << "Вывести битовое представление типа float..." << endl;
+        union {
+            float l;
+            int b;
+        };
+        cout << "Введите вещественное число: ";
+        cin >> l;
+        for (int i = 1; i <= sizeof(float) * 8; i++, Nmask >>= 1) {
+            if (b & Nmask) {
+                cout << "1";
+            }
+            else {
+                cout << "0";
+            }
+            if (sizeof(float) * 8 - i == sizeof(float) * 8 - 1) {
+                ::SetConsoleTextAttribute(hConsoleOutput, FOREGROUND_BLUE);
+                cout << " ";
+            }
+            if (sizeof(float) * 8 - i == 23) {
+                ::SetConsoleTextAttribute(hConsoleOutput, FOREGROUND_RED);
+                cout << " ";
+            }
+        }
+        ::SetConsoleTextAttribute(hConsoleOutput, csb.wAttributes);
+        cout << "\n";
+        break;
+    case 4:
+        cout << "Вывести битовое представление типа double..." << endl;
+        union {
+            double y;
+            unsigned int a[2];
+        };
+        cout << "Введите вещественное число: ";
+        cin >> y;
+        for (int i = 1; i >= 0; --i) {
+            for (int u = 1; u <= 31; ++u,newMask >>= 1) {
+                if (a[u] & newMask) {
+                    cout << "1";
+                }
+                else {
+                    cout << "0";
+                }
+                
+                if ((u == 1 && i == 1) ) {
+                    ::SetConsoleTextAttribute(hConsoleOutput, FOREGROUND_BLUE);
+                    cout << " ";
+                    
+                }
+                if (u == 11 && i == 1) {
+                    ::SetConsoleTextAttribute(hConsoleOutput, FOREGROUND_RED);
+                    cout << " ";
+                }
+                
+            }
+            newMask = 1 << 31;
+        }
+        ::SetConsoleTextAttribute(hConsoleOutput, csb.wAttributes);
+
+        break;
+    case 5:
+        cout << "Выход из программы..." << endl;
+        break;
+
+    default:
+        cerr << "Вы выбрали неверный вариант" << endl;
+        exit(EXIT_FAILURE);
+    }
+    return 0;
+}
