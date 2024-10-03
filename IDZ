@@ -1,0 +1,44 @@
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    setlocale(0, "");
+    int n;
+    cout << "Введите число: ";
+    cin >> n;
+
+    unsigned int mask = 1 << (sizeof(int) * 8 - 1); 
+    unsigned int modified = n; 
+    if (n > 0) {
+        for (int i = 0; i < sizeof(int) * 8; i++, mask >>= 1) {
+            if ((i + 1) % 2 != 0 and i!=0) {
+                modified|= mask; 
+            }
+        }
+    }
+    else {
+        mask = 1 << (sizeof(int) * 8 - 1); 
+        for (int i = 0; i < sizeof(int) * 8; i++, mask >>= 1) {
+            if (i % 2 == 0 and i != 0) {
+                modified&=~mask; 
+            }
+        }
+    }
+    mask = 1 << (sizeof(int) * 8 - 1);
+    for (int i = 0; i < sizeof(int) * 8; i++, mask >>= 1) {
+        if (modified & mask) {
+            cout << "1";
+        }
+        else {
+            cout << "0";
+        }
+
+        if (i == 0 || i % 8 == 0) {
+            cout << " ";
+        }
+    }
+
+    cout << "\n";
+    return 0;
+}
